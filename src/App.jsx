@@ -58,7 +58,7 @@ const s = {
 
 const C = {
   sidebar:{position:'fixed',left:0,top:0,bottom:0,width:220,background:s.surf,borderRight:`1px solid ${s.border}`,display:'flex',flexDirection:'column',zIndex:100,fontFamily:'system-ui,sans-serif'},
-  main:{marginLeft:220,padding:'32px 36px',minHeight:'100vh',fontFamily:'system-ui,sans-serif',background:s.bg,color:s.text},
+ main:{marginLeft:220,padding:'32px 36px',minHeight:'100vh',fontFamily:'system-ui,sans-serif',background:s.bg,color:s.text,flex:1,width:`calc(100vw - 220px)`,maxWidth:`calc(100vw - 220px)`,overflowX:'hidden'},
   navItem:(active)=>({display:'flex',alignItems:'center',gap:10,padding:'9px 10px',borderRadius:6,cursor:'pointer',fontSize:13,fontWeight:500,color:active?s.accent:'#888',background:active?'rgba(232,255,60,.08)':'transparent',border:active?`1px solid rgba(232,255,60,.15)`:'1px solid transparent',marginBottom:2}),
   card:{background:s.surf,border:`1px solid ${s.border}`,borderRadius:10,padding:20},
   inp:{background:s.surf2,border:`1px solid ${s.border}`,borderRadius:6,padding:'9px 12px',color:s.text,fontFamily:'system-ui,sans-serif',fontSize:13,outline:'none',width:'100%'},
