@@ -522,7 +522,7 @@ export default function App() {
       const base64=ev.target.result.split(',')[1],mediaType=file.type||'image/jpeg'
       try{
         const aiPrompt='Analiza esta foto de comida. Estima valores nutricionales. Responde SOLO JSON sin markdown: {nombre, kcal, proteina, carbohidratos, grasas, descripcion, confianza}'
-        const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:aiPrompt}]})})})
+        const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:aiPrompt}]}]})})
         const data=await resp.json()
         const text=data.content?.map(x=>x.text||'').join('')
         let parsed;try{parsed=JSON.parse(text.replace(/```json|```/g,'').trim())}catch{parsed=null}
