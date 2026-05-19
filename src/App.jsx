@@ -42,7 +42,37 @@ const SUPLEMENTOS_LIST = [
 ]
 
 // ─── SILUETAS SVG ─────────────────────────────────────────────────────────────
-const ExerciseFigure = ({ type, color = '#e8ff3c' }) => {
+const WGER_IDS = {
+  bench_press:192,incline_press:192,flyes:68,dips:37,tricep_ext:73,
+  pullup:31,row:110,curl:172,squat:355,leg_press:284,
+  hip_thrust:310,deadlift:29,shoulder_press:73,lateral_raise:79,
+  plank:364,rdl:29,lunge:99,calf_raise:89,face_pull:115,walk:99
+}
+const FALLBACK_EMOJI = {
+  bench_press:'🏋️',incline_press:'🏋️',flyes:'🦋',dips:'💪',tricep_ext:'💪',
+  pullup:'🧗',row:'🚣',curl:'💪',squat:'🏋️',leg_press:'🦵',
+  hip_thrust:'🍑',deadlift:'🏋️',shoulder_press:'🏋️',lateral_raise:'🙌',
+  plank:'😤',rdl:'🏋️',lunge:'🦵',calf_raise:'🦵',face_pull:'🙏',walk:'🚶'
+}
+const _imgCache = {}
+const ExerciseImage = ({ type }) => {
+  const [src,setSrc]=useState(_imgCache[type]||null)
+  const [err,setErr]=useState(false)
+  useEffect(()=>{
+    if(src||err||!WGER_IDS[type])return
+    const id=WGER_IDS[type]
+    fetch(`https://wger.de/api/v2/exerciseimage/?exercise_base=${id}&format=json`)
+      .then(r=>r.json())
+      .then(d=>{const url=d.results?.[0]?.image;if(url){_imgCache[type]=url;setSrc(url)}else setErr(true)})
+      .catch(()=>setErr(true))
+  },[type])
+  const box={width:60,height:60,borderRadius:12,flexShrink:0}
+  if(err||!WGER_IDS[type])return <div style={{...box,display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,background:'rgba(255,255,255,0.05)'}}>{FALLBACK_EMOJI[type]||'💪'}</div>
+  if(!src)return <div style={{...box,background:'rgba(255,255,255,0.07)'}}/>
+  return <img src={src} alt={type} onError={()=>setErr(true)} style={{...box,objectFit:'cover',background:'rgba(255,255,255,0.05)'}}/>
+}
+
+const _UNUSED_SVG = ({ type, color = '#e8ff3c' }) => {
   const f = {
     bench_press: <svg width="56" height="44" viewBox="0 0 56 44" fill="none">
       <rect x="4" y="28" width="48" height="5" rx="2" fill={color} opacity="0.3"/>
@@ -521,7 +551,7 @@ export default function App() {
     reader.onload=async(ev)=>{
       const base64=ev.target.result.split(',')[1],mediaType=file.type||'image/jpeg'
       try{
-        const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:'Analizá esta foto de comida. Estimá la cantidad y da valores nutricionales aproximados. Respondé SOLO JSON sin markdown: {"nombre":"","kcal":0,"proteina":0,"carbohidratos":0,"grasas":0,"descripcion":"","confianza":"alta/media/baja"}'}]})})})
+        const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:'Analizá esta foto de comida. Estimá la cantidad y da valores nutricionales aproximados. Respondé SOLO JSON sin markdown: {"nombre":"","kcal":0,"proteina":0,"carbohidratos":0,"grasas":0,"descripcion":"","confianza":"alta/media/baja"}'}]}]})})
         const data=await resp.json()
         const text=data.content?.map(x=>x.text||'').join('')
         let parsed;try{parsed=JSON.parse(text.replace(/```json|```/g,'').trim())}catch{parsed=null}
@@ -729,7 +759,7 @@ export default function App() {
                     </div>
                     {/* Silueta */}
                     <div style={{flexShrink:0,opacity:checks[e.id]?0.4:1,transition:'opacity .2s'}}>
-                      <ExerciseFigure type={e.figure} color={r.color}/>
+                      <ExerciseImage type={e.figure}/>
                     </div>
                     {/* Info */}
                     <div style={{flex:1,minWidth:0}}>
